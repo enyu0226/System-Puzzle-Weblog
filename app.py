@@ -11,7 +11,7 @@ def request_type (req):
     cur = conn.cursor() 
     d={}
     # Get number of all GET requests
-    sql_request = """SELECT COUNT(*) FROM weblogs WHERE (source)='%s';"""  %req
+    sql_request = """SELECT COUNT(*) FROM weblogs WHERE lower(source)='%s';"""  %req
     cur.execute(sql_request)
     total = cur.fetchone()[0]
     # Get number of all succesful requests

@@ -28,13 +28,18 @@ channel.queue_declare(queue='log-analysis')
 conn = psycopg2.connect(host='db', database=os.environ['POSTGRES_DB'], user=os.environ['POSTGRES_USER'], password=os.environ['POSTGRES_PASSWORD'])
 cur = conn.cursor()
 
+def add_single_quote (str1):
+  return "'%s'" %str1
 
 # main function that reads from RabbitMQ queue and stores it in database
 def callback(ch, method, properties, body):
     msg = json.loads(body)
-    values = "to_date(\'" + msg['day'] + "\', \'YYYY-MM-DD\')" + ", " + msg['status']
-    sql = """INSERT INTO weblogs (day, status)
+    values = "to_date(\'" + msg['day'] + "\', \'YYYY-MM-DD\')" + ", " + msg['status'] + ", " + add_single_quote (msg['source'])
+    #values = "to_date(\'" + msg['day'] + "\', \'YYYY-MM-DD\')" + ", " + msg['status']
+    sql = """INSERT INTO weblogs (day, status, source)
              VALUES (%s);""" % values
+    #sql = """INSERT INTO weblogs (day, status)
+            # VALUES (%s);""" % values
     cur.execute(sql, body)
     conn.commit()
     

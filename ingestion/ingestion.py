@@ -3,6 +3,7 @@ import pika
 import json
 import os
 import time
+import sys
 from utils import parse_log, is_get_request
 
 #Connect  to RabbitMQ
@@ -42,12 +43,13 @@ while True:
             day, status, source = parse_log(msg)
 
             # Store in RabbitMQ
-            body = json.dumps({'day': str(day), 'status': status})
+            body = json.dumps({'day': str(day), 'status': status, 'source': source})
+            #body = json.dumps({'day': str(day), 'status': status})
             channel.basic_publish(exchange='',
                                   routing_key='log-analysis',
                                   body=body)
         
     except:
-        print("Unexpected error:" +  sys.exc_info()[0])
+        print("Unexpected error:" +  str(sys.exc_info()[0]))
     
 connection.close()
